@@ -129,7 +129,8 @@ export function createApp({ config, cloudinaryService, readingService, staticDir
     helmet({
       contentSecurityPolicy: {
         directives: {
-          imgSrc: ["'self'", "data:", "blob:", "https:"]
+          imgSrc: ["'self'", "data:", "blob:", "https:"],
+          connectSrc: ["'self'", "data:", "blob:"]
         }
       }
     })
