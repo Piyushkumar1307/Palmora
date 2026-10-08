@@ -5,5 +5,5 @@
     "noEmit": true,
     "moduleResolution": "bundler"
   },
-  "exclude": ["piyush"]
+  "exclude": ["piyush", "dist"]
 }

@@ -512,11 +512,31 @@ function CameraScreen({
   onCapture: (asset: SelectedPalm) => void;
 }) {
   const cameraRef = useRef<CameraView>(null);
+  const cameraScreenRef = useRef<View>(null);
+  const guideRef = useRef<View>(null);
   const [permission, requestPermission] = useCameraPermissions();
   const [isCapturing, setIsCapturing] = useState(false);
   const [captureError, setCaptureError] = useState<string | null>(null);
   const [cameraViewport, setCameraViewport] = useState<FrameRect | null>(null);
   const [guideFrame, setGuideFrame] = useState<FrameRect | null>(null);
+
+  const updateGuideFrame = useCallback((fallback: FrameRect) => {
+    const guide = guideRef.current;
+    const cameraScreen = cameraScreenRef.current;
+    if (!guide || !cameraScreen) {
+      setGuideFrame(fallback);
+      return;
+    }
+
+    // `onLayout` coordinates are relative to SafeAreaView. Measure against the
+    // full camera screen instead, so the crop matches the visible guide on both
+    // web and native devices (including devices with a top safe-area inset).
+    guide.measureLayout(
+      cameraScreen,
+      (x, y, width, height) => setGuideFrame({ x, y, width, height }),
+      () => setGuideFrame(fallback),
+    );
+  }, []);
 
   const capturePalm = useCallback(async () => {
     if (!cameraRef.current || isCapturing) return;
@@ -567,7 +587,7 @@ function CameraScreen({
   }
 
   return (
-    <View style={styles.cameraScreen} onLayout={(event) => setCameraViewport(event.nativeEvent.layout)}>
+    <View ref={cameraScreenRef} style={styles.cameraScreen} onLayout={(event) => setCameraViewport(event.nativeEvent.layout)}>
       <CameraView ref={cameraRef} style={styles.cameraPreview} facing={facing} />
       <LinearGradient colors={['rgba(8, 6, 25, 0.55)', 'transparent', 'rgba(8, 6, 25, 0.82)']} style={styles.cameraShade} />
       <SafeAreaView style={styles.cameraSafeArea}>
@@ -584,7 +604,7 @@ function CameraScreen({
           </View>
         </View>
 
-        <View style={styles.cameraGuide} onLayout={(event) => setGuideFrame(event.nativeEvent.layout)}>
+        <View ref={guideRef} style={styles.cameraGuide} onLayout={(event) => updateGuideFrame(event.nativeEvent.layout)}>
           <View style={styles.cameraGuideCorner} />
           <Text style={styles.cameraGuideText}>Place your palm inside the frame</Text>
         </View>
@@ -1196,8 +1216,8 @@ const styles = StyleSheet.create({
   reportTabActive: { backgroundColor: '#F6CB73', borderColor: '#FFE3A3' },
   reportTabText: { color: '#DCD4F2', fontWeight: '700', fontSize: 10 },
   reportTabTextActive: { color: '#211337' },
-  reportHero: { height: 355, borderRadius: 20, overflow: 'hidden', backgroundColor: '#38275D', borderWidth: 1, borderColor: 'rgba(255,255,255,0.24)' },
-  reportPalmImage: { width: '100%', height: '100%', resizeMode: 'cover' },
+  reportHero: { width: '100%', aspectRatio: PALM_FRAME_RATIO, borderRadius: 20, overflow: 'hidden', backgroundColor: '#38275D', borderWidth: 1, borderColor: 'rgba(255,255,255,0.24)' },
+  reportPalmImage: { width: '100%', height: '100%', resizeMode: 'contain' },
   palmLine: { position: 'absolute', height: 3, borderRadius: 5, left: '19%', right: '15%', opacity: 0.94, shadowColor: '#fff', shadowOpacity: 0.7, shadowRadius: 5 },
   palmLineHeart: { top: '48%', backgroundColor: '#FF75A9', transform: [{ rotate: '-6deg' }] },
   palmLineHead: { top: '60%', backgroundColor: '#75BDFB', transform: [{ rotate: '8deg' }] },
