@@ -512,31 +512,25 @@ function CameraScreen({
   onCapture: (asset: SelectedPalm) => void;
 }) {
   const cameraRef = useRef<CameraView>(null);
-  const cameraScreenRef = useRef<View>(null);
-  const guideRef = useRef<View>(null);
   const [permission, requestPermission] = useCameraPermissions();
   const [isCapturing, setIsCapturing] = useState(false);
   const [captureError, setCaptureError] = useState<string | null>(null);
   const [cameraViewport, setCameraViewport] = useState<FrameRect | null>(null);
   const [guideFrame, setGuideFrame] = useState<FrameRect | null>(null);
+  const [safeAreaRect, setSafeAreaRect] = useState<FrameRect | null>(null);
+  const [guideLayout, setGuideLayout] = useState<FrameRect | null>(null);
 
-  const updateGuideFrame = useCallback((fallback: FrameRect) => {
-    const guide = guideRef.current;
-    const cameraScreen = cameraScreenRef.current;
-    if (!guide || !cameraScreen) {
-      setGuideFrame(fallback);
-      return;
-    }
-
-    // `onLayout` coordinates are relative to SafeAreaView. Measure against the
-    // full camera screen instead, so the crop matches the visible guide on both
-    // web and native devices (including devices with a top safe-area inset).
-    guide.measureLayout(
-      cameraScreen,
-      (x, y, width, height) => setGuideFrame({ x, y, width, height }),
-      () => setGuideFrame(fallback),
-    );
-  }, []);
+  useEffect(() => {
+    if (!safeAreaRect || !guideLayout) return;
+    // Guide layout is relative to SafeAreaView. Add the SafeAreaView's own
+    // offset to obtain coordinates relative to the CameraView/root preview.
+    setGuideFrame({
+      x: safeAreaRect.x + guideLayout.x,
+      y: safeAreaRect.y + guideLayout.y,
+      width: guideLayout.width,
+      height: guideLayout.height,
+    });
+  }, [guideLayout, safeAreaRect]);
 
   const capturePalm = useCallback(async () => {
     if (!cameraRef.current || isCapturing) return;
@@ -587,10 +581,10 @@ function CameraScreen({
   }
 
   return (
-    <View ref={cameraScreenRef} style={styles.cameraScreen} onLayout={(event) => setCameraViewport(event.nativeEvent.layout)}>
+    <View style={styles.cameraScreen} onLayout={(event) => setCameraViewport(event.nativeEvent.layout)}>
       <CameraView ref={cameraRef} style={styles.cameraPreview} facing={facing} />
       <LinearGradient colors={['rgba(8, 6, 25, 0.55)', 'transparent', 'rgba(8, 6, 25, 0.82)']} style={styles.cameraShade} />
-      <SafeAreaView style={styles.cameraSafeArea}>
+      <SafeAreaView style={styles.cameraSafeArea} onLayout={(event) => setSafeAreaRect(event.nativeEvent.layout)}>
         <View style={styles.cameraHeader}>
           <Pressable onPress={onClose} style={styles.cameraRoundButton} accessibilityLabel="Close camera">
             <Ionicons name="close" color={colors.text} size={23} />
@@ -604,7 +598,7 @@ function CameraScreen({
           </View>
         </View>
 
-        <View ref={guideRef} style={styles.cameraGuide} onLayout={(event) => updateGuideFrame(event.nativeEvent.layout)}>
+        <View style={styles.cameraGuide} onLayout={(event) => setGuideLayout(event.nativeEvent.layout)}>
           <View style={styles.cameraGuideCorner} />
           <Text style={styles.cameraGuideText}>Place your palm inside the frame</Text>
         </View>
