@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "PalmAura",
+    "slug": "ai-palm-reader",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "scheme": "palmaura",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA"
+      ],
+      "package": "com.piyush1307.aipalmreader"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow PalmAura to access your photos so you can select a palm image.",
+          "cameraPermission": "Allow PalmAura to use your camera to photograph a palm."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow PalmAura to use your camera to photograph your palm."
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "45588cd1-480b-478d-b1ed-4f24f2a91508"
+      }
+    }
+  }
+}

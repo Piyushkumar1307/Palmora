@@ -1,0 +1,24 @@
+{
+  "name": "ai-palm-reader-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "check": "node --check index.js && node --check app.js && node --check lib/config.js && node --check lib/errors.js && node --check lib/image.js && node --check lib/cloudinary.js && node --check lib/reading.js"
+  },
+  "dependencies": {
+    "cloudinary": "^2.8.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.0.1",
+    "helmet": "^8.1.0",
+    "multer": "^2.0.2",
+    "openai": "^6.0.0"
+  }
+}

@@ -1,0 +1,35 @@
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+
+# native build output
+android/
+ios/
+*.jks
+*.keystore
+*.mobileprovision
+
+# environment files and credentials
+.env
+.env.*
+!.env.example
+server/.env
+server/.env.*
+!server/.env.example
+
+# logs and test output
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.log
+coverage/
+
+# operating-system and editor files
+.DS_Store
+.idea/
+.vscode/
+*.swp

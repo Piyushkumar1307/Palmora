@@ -1,0 +1,21 @@
+services:
+  - type: web
+    runtime: node
+    name: palmora
+    buildCommand: npm ci && npm --prefix server ci && npm run web:build
+    startCommand: node server/index.js
+    envVars:
+      - key: NODE_VERSION
+        value: 22.13.0
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: CLOUDINARY_FOLDER
+        value: ai-palm-reader
