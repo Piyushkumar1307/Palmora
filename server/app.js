@@ -122,7 +122,18 @@ export function createApp({ config, cloudinaryService, readingService, staticDir
     res.setHeader("X-Request-Id", req.id);
     next();
   });
-  app.use(helmet());
+  // Browser camera captures and image-picker selections are temporary `blob:`
+  // URLs. Cloudinary reports are served over HTTPS. Permit those image sources
+  // without relaxing script or API connection policies.
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          imgSrc: ["'self'", "data:", "blob:", "https:"]
+        }
+      }
+    })
+  );
   app.use(cors(createCorsOptions(config)));
   if (staticDirectory) {
     app.use(express.static(staticDirectory));
